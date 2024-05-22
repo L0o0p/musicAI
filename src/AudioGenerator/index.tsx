@@ -1,12 +1,19 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { useCurrentAudio } from '../store';
 
+interface AudioInfo {
+    id: string;
+    status: string;
+    audio_url: string;
+}
 function AudioGenerator() {
-    const [prompt, setPrompt] = useState('');
-    const [audioInfo, setAudioInfo] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
+    const [prompt, setPrompt] = useState<string>('');
+    const [audioInfo, setAudioInfo] = useState<AudioInfo | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
+    const { setCurrentAudioUrl } = useCurrentAudio();
 
-    const baseUrl = "http://localhost:3000"; // 替换为你的 API 服务器地址
+    const baseUrl = "http://localhost:3000";
 
     const handleGenerateAudio = async () => {
         setLoading(true);
@@ -18,13 +25,34 @@ function AudioGenerator() {
             }, {
                 headers: { "Content-Type": "application/json" }
             });
-            setAudioInfo(response.data);
+
             console.log(response.data);
+
+            if (response.data.status === "processing") {
+                const intervalId = setInterval(async () => {
+                    const checkResponse = await axios.get(`${baseUrl}/api/get?ids=${response.data.id}`);
+                    if (checkResponse.data.status !== "processing") {
+                        clearInterval(intervalId);
+                        updateAudioInfo(checkResponse.data);
+                    }
+                }, 5000);
+            }
+            else {
+                updateAudioInfo(response.data);
+            }
         } catch (error) {
             console.error('Error generating audio:', error);
             alert('Failed to generate audio. Check console for more details.');
         }
         setLoading(false);
+    };
+
+    const updateAudioInfo = (data: AudioInfo) => {
+        setAudioInfo(data);
+        if (!data.audio_url) { console.log('没有接收到可用audioUrl') }
+        const newUrl = data.audio_url;
+        setCurrentAudioUrl(newUrl);
+        console.log(newUrl);
     };
 
     return (
@@ -34,12 +62,7 @@ function AudioGenerator() {
                 value={prompt}
                 onChange={e => setPrompt(e.target.value)}
                 placeholder="输入描述..."
-                style={{
-                    resize: 'none',
-                    width: '300px',
-                    height: '100px',
-                }}
-
+                style={{ resize: 'none', width: '300px', height: '100px' }}
             />
             <button onClick={handleGenerateAudio} disabled={loading}>
                 {loading ? '生成中...' : '生成音频'}
