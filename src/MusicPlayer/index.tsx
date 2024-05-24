@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
-import { initialPlayList, useCurrentAudio } from '../store';
+import { currentImgUrl, initialPlayList, useCurrentAudio } from '../store';
+import { useAtom } from 'jotai';
 
 function MusicPlayer() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [duration, setDuration] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
+    const [imgUrl] = useAtom(currentImgUrl);
     const audioPlayer = useRef<HTMLAudioElement>(null); // 访问audio元素
     const { currentAudio, setCurrentAudioIndex } = useCurrentAudio();
-    const imagUrl = '/conclusion.jpeg';
     const audioUrl = currentAudio.audioUrl;
 
     // 播放或暂停音乐
@@ -62,14 +63,14 @@ function MusicPlayer() {
         setCurrentAudioIndex((currentIndex) => (currentIndex - 1 + initialPlayList.length) % initialPlayList.length);
     }
 
-    const nextSongClick = () => { 
+    const nextSongClick = () => {
         setCurrentAudioIndex((currentIndex) => (currentIndex + 1) % initialPlayList.length);
     }
 
     return (
         <div>
             <div className='footageContainer' >
-                <img style={{ height: '200px', width: '200px', borderRadius: '30px' }} src={imagUrl} alt="conclusion" />
+                <img style={{ height: '200px', width: '200px', borderRadius: '30px' }} src={imgUrl} alt="conclusion" />
                 <audio
                     ref={audioPlayer}
                     src={audioUrl}
