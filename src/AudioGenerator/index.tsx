@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useCurrentAudio, currentImgUrl, playListAtom } from '../store';
+import { currentImgUrl, playListAtom } from '../store';
 import { useAtom } from 'jotai';
 import styles from './index.module.scss'
 import { MusicPlayer } from '../MusicPlayer';
@@ -19,7 +19,6 @@ function AudioGenerator() {
     const [, setimgUrl] = useAtom<string>(currentImgUrl);
     const [loading, setLoading] = useState<boolean>(false);
     const [intervalId, setIntervalId] = useState<number | null>(null);
-    const { currentAudio, setCurrentAudioUrl, setCurrentAudioName } = useCurrentAudio();
     const [playList] = useAtom(playListAtom)
 
     // const baseUrl = "https://suno-api-eta-seven.vercel.app";
@@ -60,11 +59,9 @@ function AudioGenerator() {
                     if (checkResponse.data[0].audio_url && checkResponse.data[0].audio_url !== '' && checkResponse.data[1].audio_url && checkResponse.data[1].audio_url !== '') {
                         clearInterval(newIntervalId);
                         setIntervalId(null);  // 假设你有一个函数setIntervalId来管理这个ID
+                        updateAudioInfo(checkResponse.data[0]);  // 确保传递正确的信息到 updateAudioInfo
                         updateAudioInfo(checkResponse.data[1]);  // 确保传递正确的信息到 updateAudioInfo
                         updateImageInfo(checkResponse.data[1]);
-                        // 追加另一首歌到播放列表的函数
-                        appendSong(checkResponse.data[0])
-                        updateNameInfo(checkResponse.data[1])
                         console.log('信息获取完毕，结束轮询');
                     }
 
@@ -88,6 +85,7 @@ function AudioGenerator() {
         setLoading(false);
     };
 
+    // 替换当前音频
     const updateAudioInfo = (data: AudioInfo) => {
         setAudioInfo(data);
 
@@ -96,10 +94,12 @@ function AudioGenerator() {
             console.log('没有接收到可用 audioUrl，但是 audioInfo 包含', data);
             return; // 如果没有url则不执行后续操作
         }
-
-        const newUrl = data.audio_url;
-        setCurrentAudioUrl(newUrl);
+        appendSong(data)// 追加音乐到播放列表的首位
+        // 替换音乐到当前音乐
+        // const newUrl = data.audio_url;
+        // setCurrentAudioUrl(newUrl);
     }
+    // 更新封面
     const updateImageInfo = (data: AudioInfo) => {
         setAudioInfo(data);
 
@@ -112,20 +112,12 @@ function AudioGenerator() {
         const newImgUrl = data.image_url;
         setimgUrl(newImgUrl);
     }
-    const updateNameInfo = (data: AudioInfo) => {
-        setAudioInfo(data);
 
-        // 立即检查audio_url是否存在
-        if (!data.title) {
-            console.log('没有接收到可用 imgUrl，但是包含', data);
-            return; // 如果没有url则不执行后续操作
-        }
-        const newName = data.title;
-        currentAudio.name = newName
-        setCurrentAudioName(newName);
-    }
+    // 更新播放列表
     const appendSong = (data: AudioInfo) => {
-        playList.splice(1, 0, { imageUrl: data.image_url, audioUrl: data.audio_url, name: data.title })
+        const songA = { imageUrl: data.image_url, audioUrl: data.audio_url, name: data.title }
+        console.log('songA:', songA)
+        playList.splice(0, 0, songA)
     }
 
 

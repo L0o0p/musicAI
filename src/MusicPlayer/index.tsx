@@ -20,7 +20,7 @@ export const MusicPlayer = () => {
         <>
             <p className={styles.butttt}>
                 <audio
-                    preload='true'
+                    preload={'auto'}
                     controls={true}
                     autoPlay={true}
                     key={currentAudio.audioUrl}
