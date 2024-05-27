@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useCurrentAudio, currentImgUrl } from '../store';
 import { useAtom } from 'jotai';
 import styles from './index.module.scss'
+import { MusicPlayer } from '../MusicPlayer';
 
 interface AudioInfo {
     id: string;
@@ -107,35 +108,6 @@ function AudioGenerator() {
         setimgUrl(newImgUrl);
     }
 
-    // function musicSourceParse() { 
-    //         // 尝试获取新的URL并解析其HTML
-    //         fetch(newUrl)
-    //             .then(response => response.text())
-    //             .then(html => {
-    //                 const parser = new DOMParser();
-    //                 const doc = parser.parseFromString(html, "text/html");
-
-    //                 // 获取video标签
-    //                 const videoElement = doc.querySelector('video');
-
-    //                 // 尝试获取source标签的src
-    //                 if (videoElement) {
-    //                     const sourceElement = videoElement.querySelector('source');
-    //                     if (sourceElement && sourceElement.src) {
-    //                         console.log('Source URL:', sourceElement.src);
-    //                     } else {
-    //                         console.log('No source element or source src found');
-    //                     }
-    //                 } else {
-    //                     console.log('No video element found');
-    //                 }
-    //             })
-    //             .catch(error => {
-    //                 console.error('Error fetching page:', error);
-    //             });
-    //     };
-    // }
-
     return (
         <div>
             <h1>MusicMaker</h1>
@@ -153,17 +125,14 @@ function AudioGenerator() {
                     {loading ? 'Composing...' : 'Sing it'}
                 </button>
             </div>
+            <MusicPlayer />
+
             {audioInfo && (
                 <div>
                     <h2>音频信息</h2>
                     <p>ID: {audioInfo.id}</p>
                     <p>状态: {audioInfo.status}</p>
                     <p>URL: {audioInfo.audio_url ? <a href={audioInfo.audio_url} target="_blank">点击播放</a> : '音频正在处理中'}</p>
-                    <p>
-                        <audio controls={true} autoPlay={true}>
-                            {audioInfo.audio_url ? <source src={audioInfo.audio_url} type="audio/mp3" /> : null}
-                        </audio>
-                    </p>
                 </div>
             )}
         </div>

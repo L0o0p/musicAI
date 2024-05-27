@@ -29,7 +29,7 @@ export const useCurrentAudio = () => {
         setPlayList(newPlayList);
     };
     const currentAudio = playList[currentAudioIndex];
-    return { currentAudio, setCurrentAudioIndex, setCurrentAudioUrl };
+    return { currentAudio, setCurrentAudioIndex, currentAudioIndex, setCurrentAudioUrl };
 };
 
 // 当前音频封面url

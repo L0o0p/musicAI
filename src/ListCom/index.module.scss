@@ -1,0 +1,45 @@
+.playlist {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    border: lightgray solid 1px;
+    padding: 10px;
+    gap: 8px;
+    max-width: 300px;
+}
+
+.header {
+    font-size: large;
+    text-align: center;
+}
+
+.line {}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    gap: 6px;
+    background-color: rgb(46, 46, 46);
+    width: 100%;
+    font-weight: 100;
+}
+
+.item {
+    width: 100%;
+}
+
+.item:hover {
+    cursor: pointer;
+    font-weight: 500;
+    // background-color: gray;
+    color: white;
+}
+
+.item:active {
+    font-weight: 500;
+    background-color: gray;
+    color: white;
+}
