@@ -7,11 +7,15 @@
     padding: 10px;
     gap: 8px;
     max-width: 300px;
+    
 }
 
 .header {
+    display: flex;
+    justify-content: space-between;
     font-size: large;
     text-align: center;
+    width: 100%;
 }
 
 .line {}
@@ -42,4 +46,13 @@
     font-weight: 500;
     background-color: gray;
     color: white;
+}
+
+.open {
+    cursor: pointer;
+    border: gray 1px solid;
+    padding: 4px;
+    border-radius: 999px;
+    justify-content: center;
+    align-items: center;
 }

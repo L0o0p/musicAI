@@ -2,9 +2,9 @@ import { atom, useAtom } from "jotai";
 
 // 初始播放列表
 export const initialPlayList = [
-    { imageUrl: '/conclusion.jpeg', audioUrl: '/Im-sorry.mp3' },
-    { imageUrl: '/conclusion.jpeg', audioUrl: '/Feline Fever.mp3' },
-    { imageUrl: '/conclusion.jpeg', audioUrl: '/Desperate Boy.mp3' },
+    { imageUrl: '/conclusion.jpeg', audioUrl: '/Im-sorry.mp3', name: 'Im-sorry' },
+    { imageUrl: '/conclusion.jpeg', audioUrl: '/Feline Fever.mp3', name: 'Feline Fever' },
+    { imageUrl: '/conclusion.jpeg', audioUrl: '/Desperate Boy.mp3', name: 'Desperate Boy' },
 ];
 
 // 暴露初始播放列表
@@ -28,8 +28,17 @@ export const useCurrentAudio = () => {
         };
         setPlayList(newPlayList);
     };
+
+    const setCurrentAudioName = (audioName: string) => {
+        const newPlayList = [...playList];
+        newPlayList[currentAudioIndex] = {
+            ...newPlayList[currentAudioIndex],
+            name: audioName // Update the audio URL
+        };
+        setPlayList(newPlayList);
+    };
     const currentAudio = playList[currentAudioIndex];
-    return { currentAudio, setCurrentAudioIndex, currentAudioIndex, setCurrentAudioUrl };
+    return { currentAudio, setCurrentAudioIndex, currentAudioIndex, setCurrentAudioUrl, setCurrentAudioName };
 };
 
 // 当前音频封面url

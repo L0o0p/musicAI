@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useCurrentAudio, currentImgUrl } from '../store';
+import { useCurrentAudio, currentImgUrl, playListAtom } from '../store';
 import { useAtom } from 'jotai';
 import styles from './index.module.scss'
 import { MusicPlayer } from '../MusicPlayer';
@@ -10,6 +10,7 @@ interface AudioInfo {
     status: string;
     audio_url: string;
     image_url: string;
+    title: string;
 }
 
 function AudioGenerator() {
@@ -18,7 +19,8 @@ function AudioGenerator() {
     const [, setimgUrl] = useAtom<string>(currentImgUrl);
     const [loading, setLoading] = useState<boolean>(false);
     const [intervalId, setIntervalId] = useState<number | null>(null);
-    const { setCurrentAudioUrl } = useCurrentAudio();
+    const { currentAudio, setCurrentAudioUrl, setCurrentAudioName } = useCurrentAudio();
+    const [playList] = useAtom(playListAtom)
 
     // const baseUrl = "https://suno-api-eta-seven.vercel.app";
     const baseUrl = "http://localhost:3000";
@@ -55,11 +57,14 @@ function AudioGenerator() {
                     console.log('接收到response:', checkResponse);
 
                     // 这里应该检查 checkResponse 的状态，而不是 response
-                    if (checkResponse.data[0].audio_url && checkResponse.data[0].audio_url !== '') {
+                    if (checkResponse.data[0].audio_url && checkResponse.data[0].audio_url !== '' && checkResponse.data[1].audio_url && checkResponse.data[1].audio_url !== '') {
                         clearInterval(newIntervalId);
                         setIntervalId(null);  // 假设你有一个函数setIntervalId来管理这个ID
-                        updateAudioInfo(checkResponse.data[0]);  // 确保传递正确的信息到 updateAudioInfo
-                        updateImageInfo(checkResponse.data[0]);
+                        updateAudioInfo(checkResponse.data[1]);  // 确保传递正确的信息到 updateAudioInfo
+                        updateImageInfo(checkResponse.data[1]);
+                        // 追加另一首歌到播放列表的函数
+                        appendSong(checkResponse.data[0])
+                        updateNameInfo(checkResponse.data[1])
                         console.log('信息获取完毕，结束轮询');
                     }
 
@@ -107,6 +112,22 @@ function AudioGenerator() {
         const newImgUrl = data.image_url;
         setimgUrl(newImgUrl);
     }
+    const updateNameInfo = (data: AudioInfo) => {
+        setAudioInfo(data);
+
+        // 立即检查audio_url是否存在
+        if (!data.title) {
+            console.log('没有接收到可用 imgUrl，但是包含', data);
+            return; // 如果没有url则不执行后续操作
+        }
+        const newName = data.title;
+        currentAudio.name = newName
+        setCurrentAudioName(newName);
+    }
+    const appendSong = (data: AudioInfo) => {
+        playList.splice(1, 0, { imageUrl: data.image_url, audioUrl: data.audio_url, name: data.title })
+    }
+
 
     return (
         <div>
