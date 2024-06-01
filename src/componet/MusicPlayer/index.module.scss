@@ -20,12 +20,14 @@
     gap: 4px;
     justify-content: space-between;
     width: 300px;
+    z-index: 100;
+    display: none;
 }
 
 .butP {
     flex: 1;
     cursor: pointer;
-    border-radius: 999px  0 0 999px;
+    border-radius: 999px 0 0 999px;
     // width: 50px;
     text-align: center;
     background-color: rgb(70, 70, 70);
@@ -34,7 +36,7 @@
 .butN {
     flex: 1;
     cursor: pointer;
-    border-radius:  0 999px 999px 0;
+    border-radius: 0 999px 999px 0;
     // width: 50px;
     text-align: center;
     background-color: rgb(70, 70, 70);

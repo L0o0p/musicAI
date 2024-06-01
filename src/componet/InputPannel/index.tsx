@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { currentImgUrl, playListAtom } from '../store';
+
 import { useAtom } from 'jotai';
-import styles from './index.module.scss'
-import { MusicPlayer } from '../MusicPlayer';
+import axios from 'axios';
+import { useEffect, useState } from "react";
+import styles from './index.module.scss';
+import { baseUrl, currentImgUrl, playListAtom } from '../../store';
 
 interface AudioInfo {
     id: string;
@@ -13,23 +13,23 @@ interface AudioInfo {
     title: string;
 }
 
-function AudioGenerator() {
-    const [prompt, setPrompt] = useState<string>('');
-    const [audioInfo, setAudioInfo] = useState<AudioInfo | null>(null);
-    const [, setimgUrl] = useAtom<string>(currentImgUrl);
+
+export const InputPannel = () => {
+
+    // 获取信息状态
     const [loading, setLoading] = useState<boolean>(false);
     const [intervalId, setIntervalId] = useState<number | null>(null);
+    const [audioInfo, setAudioInfo] = useState<AudioInfo | null>(null);
+    const [, setimgUrl] = useAtom<string>(currentImgUrl);
+    // const { setCurrentAudioUrl } = useCurrentAudio();
+    const [prompt, setPrompt] = useState<string>('');
     const [playList] = useAtom(playListAtom)
-
-    // const baseUrl = "https://suno-api-eta-seven.vercel.app";
-    const baseUrl = "http://localhost:3000";
-
-
     useEffect(() => {
         return () => {
             if (intervalId) clearInterval(intervalId);
         };
     }, [intervalId]);
+    // 点击生成
 
     const handleGenerateAudio = async () => {
         setLoading(true);
@@ -115,41 +115,51 @@ function AudioGenerator() {
 
     // 更新播放列表
     const appendSong = (data: AudioInfo) => {
-        const songA = { imageUrl: data.image_url, audioUrl: data.audio_url, name: data.title }
+        const songA = { imageUrl: data.image_url, audioUrl: data.audio_url, name: data.title, id: data.id }
         console.log('songA:', songA)
         playList.splice(0, 0, songA)
     }
 
 
-    return (
-        <div>
-            <h1>MusicMaker</h1>
-            <div className={styles.input}>
-                <textarea
-                    value={prompt}
-                    onChange={e => setPrompt(e.target.value)}
-                    placeholder="descrbe you mind..."
-                    className={styles.inputPrompt}
-                />
-                <button
-                    onClick={handleGenerateAudio} disabled={loading}
-                    className={styles.inputButton}
-                >
-                    {loading ? 'Composing...' : 'Sing it'}
-                </button>
-            </div>
-            <MusicPlayer />
+    // // 出错弹窗
+    // function showAlert(content = '出错了') {
+    //     Taro.showModal({
+    //         title: '提示',         // 对话框标题
+    //         content: content,      // 对话框内容, 默认为'出错了'
+    //         showCancel: false,     // 不显示取消按钮
+    //         confirmText: '确定',   // 确认按钮的文字，默认是“确定”
+    //         success: function (res) {
+    //             if (res.confirm) {
+    //                 console.log('用户点击确定');
+    //             }
+    //         }
+    //     });
+    // }
 
-            {audioInfo && (
-                <div>
-                    <h2>音频信息</h2>
-                    <p>ID: {audioInfo.id}</p>
-                    <p>状态: {audioInfo.status}</p>
-                    <p>URL: {audioInfo.audio_url ? <a href={audioInfo.audio_url} target="_blank">点击播放</a> : '音频正在处理中'}</p>
+    return (
+        <div className={styles.inputWindow}>
+            <div className={styles.inputWindowContainer}>
+                <div className={styles.inputBlock}>
+                    <div className={styles.inputWindowTitle}><div>歌曲描述</div></div>
+                    <textarea
+                        value={prompt}
+                        onChange={e => setPrompt(e.target.value)}
+                        placeholder="descrbe you mind..."
+                        className={styles.inputPrompt}
+                    />
                 </div>
-            )}
+                <div className={styles.createButton} onClick={handleGenerateAudio}>
+                    {loading ? '创作中...' : '开始创作'}
+                </div>
+                {audioInfo && (
+                    <div>
+                        <h2>音频信息</h2>
+                        <p>ID: {audioInfo.id}</p>
+                        <p>状态: {audioInfo.status}</p>
+                        <p>URL: {audioInfo.audio_url ? <a href={audioInfo.audio_url} target="_blank">点击播放</a> : '音频正在处理中'}</p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
-
-export default AudioGenerator;

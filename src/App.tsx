@@ -1,15 +1,14 @@
+import 'reset-css'
 import './App.css';
-import AudioGenerator from './AudioGenerator'; // 确保路径正确
-import { DiskCover } from './DiskCover';
-
+import { ControlPannel } from './componet/ControlPannel';
+import { DiskCover } from './componet/DiskCover';
+import { InputPannel } from './componet/InputPannel';
 function App() {
-
   return (
-    <div className="App">
-      <header className="App-header">
-        <DiskCover />
-        <AudioGenerator />
-      </header>
+    <div className="container">
+      <DiskCover />
+      <ControlPannel />
+      <InputPannel />
     </div>
   );
 }
