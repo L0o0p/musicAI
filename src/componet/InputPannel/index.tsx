@@ -3,23 +3,14 @@ import { useAtom } from 'jotai';
 import axios from 'axios';
 import { useEffect, useState } from "react";
 import styles from './index.module.scss';
-import { baseUrl, currentImgUrl, playListAtom } from '../../store';
-
-interface AudioInfo {
-    id: string;
-    status: string;
-    audio_url: string;
-    image_url: string;
-    title: string;
-}
-
+import { AudioInfo, audioInfoAtom, baseUrl, currentImgUrl, playListAtom } from '../../store';
 
 export const InputPannel = () => {
 
     // 获取信息状态
     const [loading, setLoading] = useState<boolean>(false);
     const [intervalId, setIntervalId] = useState<number | null>(null);
-    const [audioInfo, setAudioInfo] = useState<AudioInfo | null>(null);
+    const [audioInfo, setAudioInfo] = useAtom<AudioInfo | null>(audioInfoAtom);
     const [, setimgUrl] = useAtom<string>(currentImgUrl);
     // const { setCurrentAudioUrl } = useCurrentAudio();
     const [prompt, setPrompt] = useState<string>('');

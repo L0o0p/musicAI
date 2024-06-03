@@ -1,8 +1,10 @@
 import { useAtom } from "jotai";
 import { icon } from '../iconStore'
 import styles from './index.module.scss';
-import { PlaybackModes, audioRefAtom, baseUrl, currentAudioIndexAtom, isPlayingAtom, playListAtom, playbackModeAtom, useCurrentAudio } from "../../../store";
+import { PlaybackModes, audioInfoAtom, baseUrl, isPlayingAtom, playListAtom, playbackModeAtom, useCurrentAudio } from "../../../store";
 import axios from "axios";
+import { useEffect, useState } from "react";
+import { LoadingOutlined } from "@ant-design/icons";
 
 export const ControlBlock = () => {
 
@@ -31,54 +33,71 @@ const PlayMode = () => {
         </div>
     )
 }
-const fetchNewAudioUrl = async (id: string) => {
-    try {
-        const response = await fetch(`http://localhost:3000//api/feed/ids=${id}`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Failed to fetch audio:', error);
-        return null;
-    }
-};
+
 // 下载按钮
 const Download = () => {
-    // const { currentAudio } = useCurrentAudio()
-    const download = () => {
-        // const baseUrl = 'https://studio-api.suno.ai/api/gen/';
-        // const url = `${baseUrl}${currentAudio.id}/increment_action_count/`;
-        const url = '/api/e7458276-2a70-4437-aca8-7a0128830813/increment_action_count/';
+    // 假设 useCurrentAudio 是一个 Hook，返回当前音频的相关信息
+    const [loading, setLoading] = useState<boolean>(false);
+    const { currentAudio } = useCurrentAudio()
+    const [audioInfo, setAudioInfo] = useAtom(audioInfoAtom)
+    // 函数：重新获取当前音频的信息（包含生成的mp3）
+    async function getAudioInformation(audioIds: string) {
+        setLoading(true);
+        const url = `${baseUrl}/api/get?ids=${audioIds}`;
+        const response = await axios.get(url)
+            .catch(error => {
+                console.error('API请求失败:', error);
+                if (error.response) {
+                    alert(`错误: ${error.response.status} ${error.response.data.message}`);
+                } else if (error.request) {
+                    alert('服务器响应超时，请检查您的网络连接或稍后再试。');
+                } else {
+                    alert('请求失败，请检查您的请求配置或稍后再试。');
+                }
+                return null;  // 返回 null 以避免后续代码执行
+            });
 
-        fetch(url, {
-            method: 'POST', // 或 'POST'
-            headers: {
-                'Authorization': 'Bearer', // 如果需要的话
-                'Content-Type': 'application/json/mp3'
-            }
-        })
-            .then(response => {
-                if (response.ok) return response.blob();
-                throw new Error('Network response was not ok.');
-            })
-            .then(blob => {
-                // 创建一个链接并模拟点击以下载音频文件
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = url;
-                a.download = 'audio.mp3'; // 或其他文件名
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-            })
-            .catch(error => console.error('Failed to fetch audio:', error));
-    };
+        if (response && response.data) {  // 确保 response 和 response.data 都有效
+            setAudioInfo(response.data[0]);
+        }
+        setLoading(false);
+    }
+    // 函数：根据重新获取到的url下载mp3文件
+    function downloadAudio() {
+        if (audioInfo && audioInfo.audio_url !== '') {
+            const audioUrl = audioInfo.audio_url;
+            // 使用 fetch API 下载文件
+            fetch(audioUrl)
+                .then(response => response.blob()) // 转换为 blob
+                .then(blob => {
+                    // 创建一个指向该 Blob 的 URL
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = audioInfo.title, ".mp3"; // 指定下载文件名
+                    document.body.appendChild(a);
+                    a.click();
+
+                    // 清理
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                })
+                .catch(e => console.error('下载失败:', e));
+        }
+    }
+    // 点击下载
+    async function downloadMP3(audioId = currentAudio) {
+        getAudioInformation(audioId.id);
+    }
+    // 获取到自动执行下载方法
+    useEffect(() => {
+        downloadAudio()
+    }, [audioInfo?.audio_url])
     return (
         <div className={styles.download}>
-            <img className={styles.featherButton} src={icon.download} onClick={() => { download(); console.log('功能键') }} />
+            {loading ? <LoadingOutlined /> : <img className={styles.featherButton} src={icon.download} onClick={() => { downloadMP3(); console.log('Download clicked') }} />
+            }
         </div>
     )
 }

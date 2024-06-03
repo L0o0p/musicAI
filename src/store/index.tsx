@@ -69,3 +69,11 @@ export const PlaybackModes = {
 };
 // 当前的播放模式状态
 export const playbackModeAtom = atom(PlaybackModes.SEQUENTIAL)
+export interface AudioInfo {
+    id: string;
+    status: string;
+    audio_url: string;
+    image_url: string;
+    title: string;
+}
+export const audioInfoAtom = atom<AudioInfo | null>(null)
