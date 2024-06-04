@@ -1,4 +1,5 @@
-import { atom, useAtom } from "jotai";
+import { atom, useAtom} from "jotai";
+import { atomWithStorage } from "jotai/utils";
 
 
 // 生成请求地址
@@ -7,13 +8,13 @@ export const baseUrl = "http://localhost:3000";
 
 // 初始播放列表
 export const initialPlayList = [
-    { imageUrl: '/conclusion.jpeg', audioUrl: '/Im-sorry.mp3', name: 'Im-sorry' ,id: ''},
-    { imageUrl: '/conclusion.jpeg', audioUrl: '/Feline Fever.mp3', name: 'Feline Fever', id: '' },
-    { imageUrl: '/conclusion.jpeg', audioUrl: '/Desperate Boy.mp3', name: 'Desperate Boy', id: '' },
+    { imageUrl: 'https://telegraph-image-3k8.pages.dev/file/f87b9fd9305890ab158cf.jpg', audioUrl: '/Im-sorry.mp3', name: 'Im-sorry', id: '' },
+    { imageUrl: 'https://telegraph-image-3k8.pages.dev/file/2054b3cf3f0975efa1de9.jpg', audioUrl: '/Feline Fever.mp3', name: 'Feline Fever', id: '' },
+    { imageUrl: 'https://telegraph-image-3k8.pages.dev/file/d6de2d827d8959df78ed9.jpg', audioUrl: '/Desperate Boy.mp3', name: 'Desperate Boy', id: '' },
 ];
 
 // 暴露初始播放列表
-export const playListAtom = atom(initialPlayList);
+export const playListAtom = atomWithStorage('playlist',initialPlayList);
 
 // 暴露当前播放的音频索引
 export const currentAudioIndexAtom = atom(0);
@@ -42,18 +43,28 @@ export const useCurrentAudio = () => {
         };
         setPlayList(newPlayList);
     };
+    const setCurrentAudioImg = (imageUrl: string) => {
+        const newPlayList = [...playList];
+        newPlayList[currentAudioIndex] = {
+            ...newPlayList[currentAudioIndex],
+            imageUrl: imageUrl // Update the audio URL
+        };
+        setPlayList(newPlayList);
+    };
     const currentAudio = playList[currentAudioIndex];
-    return { currentAudio, setCurrentAudioIndex, currentAudioIndex, setCurrentAudioUrl, setCurrentAudioName };
+    return { currentAudio, setCurrentAudioIndex, currentAudioIndex, setCurrentAudioUrl, setCurrentAudioName, setCurrentAudioImg };
 };
 
-// 当前音频封面url
-export const currentImgUrl = atom('https://telegraph-image-3k8.pages.dev/file/d03ab5e77f91cf312aa73.png');
-
 // 碟片的旋转状态
-export const diskRotationAtom = atom(true)
+export const useDiskRotation = () => {
+    const [isPlaying] = useAtom(isPlayingAtom);
+    const cd = (isPlaying ? true : false)
+    const diskRotation = cd
+    return { diskRotation }
+}
 
 // 跨组件共享audioRef
-export const audioRefAtom = atom(null);
+export const audioRefAtom = atom<HTMLAudioElement | null>(null);
 
 // 监听音频实际播放状态
 export const isPlayingAtom = atom<boolean>(false);

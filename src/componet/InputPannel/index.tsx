@@ -3,7 +3,7 @@ import { useAtom } from 'jotai';
 import axios from 'axios';
 import { useEffect, useState } from "react";
 import styles from './index.module.scss';
-import { AudioInfo, audioInfoAtom, baseUrl, currentImgUrl, playListAtom } from '../../store';
+import { AudioInfo, audioInfoAtom, baseUrl, playListAtom, useCurrentAudio } from '../../store';
 
 export const InputPannel = () => {
 
@@ -11,7 +11,7 @@ export const InputPannel = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [intervalId, setIntervalId] = useState<number | null>(null);
     const [audioInfo, setAudioInfo] = useAtom<AudioInfo | null>(audioInfoAtom);
-    const [, setimgUrl] = useAtom<string>(currentImgUrl);
+    const { setCurrentAudioImg } = useCurrentAudio()
     // const { setCurrentAudioUrl } = useCurrentAudio();
     const [prompt, setPrompt] = useState<string>('');
     const [playList] = useAtom(playListAtom)
@@ -101,7 +101,7 @@ export const InputPannel = () => {
         }
 
         const newImgUrl = data.image_url;
-        setimgUrl(newImgUrl);
+        setCurrentAudioImg(newImgUrl);
     }
 
     // 更新播放列表
@@ -110,22 +110,6 @@ export const InputPannel = () => {
         console.log('songA:', songA)
         playList.splice(0, 0, songA)
     }
-
-
-    // // 出错弹窗
-    // function showAlert(content = '出错了') {
-    //     Taro.showModal({
-    //         title: '提示',         // 对话框标题
-    //         content: content,      // 对话框内容, 默认为'出错了'
-    //         showCancel: false,     // 不显示取消按钮
-    //         confirmText: '确定',   // 确认按钮的文字，默认是“确定”
-    //         success: function (res) {
-    //             if (res.confirm) {
-    //                 console.log('用户点击确定');
-    //             }
-    //         }
-    //     });
-    // }
 
     return (
         <div className={styles.inputWindow}>

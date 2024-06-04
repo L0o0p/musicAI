@@ -1,9 +1,10 @@
 import styles from './index.module.scss';
 import { useAtom } from "jotai";
 import { audioRefAtom, currentDurationAtom, currentTimeAtom } from "../../../store";
+import { LoadingOutlined } from '@ant-design/icons';
 
 export const ProcessBlock = () => {
-    const [currentTime, setCurrentTime] = useAtom(currentTimeAtom)
+    const [currentTime] = useAtom(currentTimeAtom)
     const [currentDuration] = useAtom(currentDurationAtom)
     const [audioRef] = useAtom(audioRefAtom)
 
@@ -17,9 +18,8 @@ export const ProcessBlock = () => {
     // 处理进度条的改变
     const handleProgress = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newTime = (e.target.valueAsNumber / 100) * currentDuration;
-        // setCurrentTime((currentDuration / 100) * newTime); 
         if (audioRef) {
-            audioRef.current.currentTime = (currentDuration / 100) * newTime;
+            audioRef.current.currentTime = newTime;
         }
     };
 
@@ -37,7 +37,7 @@ export const ProcessBlock = () => {
             </div>
 
             <div className={styles.processTime}>
-                <span>{formatTime(currentTime)}</span>  <span>{formatTime(currentDuration)}</span>
+                <span>{formatTime(currentTime)}</span>  <span>{(formatTime(currentDuration) && (typeof formatTime(currentDuration) === 'number')) ? formatTime(currentDuration) : <LoadingOutlined />}</span>
             </div>
         </div>
     )

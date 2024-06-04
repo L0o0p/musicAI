@@ -1,20 +1,22 @@
 import { useAtom } from 'jotai';
-import { audioRefAtom, isPlayingAtom, useCurrentAudio, currentTimeAtom, currentDurationAtom, PlaybackModes, playbackModeAtom, diskRotationAtom } from '../../store';
+import { audioRefAtom, isPlayingAtom, useCurrentAudio, currentTimeAtom, currentDurationAtom, currentAudioIndexAtom } from '../../store';
 import styles from './index.module.scss'
 import { useEffect, useRef } from 'react';
+import { currentPlayModeIndexAtom, playMode } from '../../store/mode';
 
 export const MusicPlayer = () => {
     const { currentAudio } = useCurrentAudio();
-    const audioRef = useRef<HTMLAudioElement>(null);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
     const [, setAudioRef] = useAtom(audioRefAtom);
     const [isPlay] = useAtom(isPlayingAtom);
     const [, setCurrentTime] = useAtom(currentTimeAtom)
     const [, setCurrentDuration] = useAtom(currentDurationAtom)
-    const [diskRotation, setDiskRotation] = useAtom(diskRotationAtom)
 
     // 吧ref赋值给更新的audio
     useEffect(() => {
-        setAudioRef(audioRef);
+        if (audioRef.current) {
+            setAudioRef(audioRef.current);
+        }
     }, [audioRef, setAudioRef]);
 
     // 监听audio实际播放情况改变记录状态
@@ -25,14 +27,10 @@ export const MusicPlayer = () => {
 
         const handlePlay = () => {
             console.log('Play event triggered');
-            setDiskRotation(true)// 这样自动播放的时候也会自动开启旋转
-            console.log('变换了旋转状态', diskRotation)
         };
 
         const handlePause = () => {
             console.log('Pause event triggered');
-            setDiskRotation(false)
-            console.log('变换了旋转状态', diskRotation)
         };
 
         audio.addEventListener('play', handlePlay);
@@ -43,6 +41,7 @@ export const MusicPlayer = () => {
             audio.removeEventListener('pause', handlePause);
         };
     }, []);
+    // 监听当前音频时长
     useEffect(() => {
         const audio = audioRef.current;
         if (audio) {
@@ -56,12 +55,8 @@ export const MusicPlayer = () => {
                     // audio.play();
                 }, false);
                 audio.play().catch(e => console.error('Error playing audio:', e));
-                setDiskRotation(true)
-                console.log('变换了旋转状态', diskRotation)
             } else {
                 audio.pause();
-                setDiskRotation(false)
-                console.log('变换了旋转状态', diskRotation)
             }
         }
     }, [isPlay]);  // 只有当 isPlay 改变时，这个 useEffect 才会运行
@@ -88,35 +83,42 @@ export const MusicPlayer = () => {
         };
     }, [currentAudio, setCurrentDuration, setCurrentTime]);
 
-    // 处理多种播放模式的方法
-    const [playbackMode] = useAtom(playbackModeAtom);
-    const handleEnd = (mode: string, audioElement: HTMLAudioElement) => {
-        switch (mode) {
-            case PlaybackModes.REPEAT_ONE:
-                if (audioElement) {
-                    audioElement.currentTime = 0;
-                    audioElement.play();
-                }
-                break;
-            case PlaybackModes.REPEAT_ALL:
-                // 如果是列表的最后一首，重新开始
-                break;
-            case PlaybackModes.SHUFFLE:
-                // 随机选择一首歌曲播放
-                break;
-            case PlaybackModes.SEQUENTIAL:
-                // 播放下一首歌曲，如果是最后一首则停止或重新开始
-                break;
-            default:
-                // 默认处理方式
-                break;
+
+    // 定义当前音频播放结束行为
+    const [currentAudioIndex, setCurrentAudioIndex] = useAtom(currentAudioIndexAtom)
+    const [currentPlayModeIndex] = useAtom(currentPlayModeIndexAtom)
+    const endAct = () => {
+        if (!audioRef.current) { return }
+        const audio = audioRef.current
+        // 顺序播放
+        if (currentPlayModeIndex === 0) {
+            audio.onended = function () {
+                // alert("The video has ended");
+                const newIndex = (currentPlayModeIndex < playMode.length - 1 ? (currentPlayModeIndex + 1) : 0)
+                setCurrentAudioIndex(newIndex)
+                audio.play()
+            };
         }
-    };
+        // 单曲循环
+        if (currentPlayModeIndex === 1) {
+            audio.onended = function () {
+                setCurrentAudioIndex(currentAudioIndex)
+                audio.play()
+            };
+        }
+        // 随机播放
+        if (currentPlayModeIndex === 2) {
+            audio.onended = function () {
+                const randomIndex = Math.floor(Math.random() * (playMode.length - 1))
+                setCurrentAudioIndex(randomIndex)
+                audio.play()
+            };
+        }
+    }
+    // 执行音频播放结束行为
     useEffect(() => {
-        if (audioRef.current) {
-            audioRef.current.onended = () => handleEnd(playbackMode, audioRef.current);
-        }
-    }, [playbackMode]);
+        endAct()
+    }, [currentAudioIndex, currentPlayModeIndex])
 
     return (
         <>

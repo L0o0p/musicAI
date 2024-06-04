@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { playListAtom, useCurrentAudio } from '../store'
+import { playListAtom, useCurrentAudio } from '../../store/index'
 import styles from './index.module.scss'
 import { useAtom } from 'jotai'
 import CaretDownOutlined from '@ant-design/icons/lib/icons/CaretDownOutlined';
@@ -12,7 +12,8 @@ interface ListCom {
 // 歌单组件
 export const ListCom = (props: ListCom) => {
     // 是否展示
-    const { display, setDis } = props
+    // const { display, setDis } = props
+    const [display, setDis] = useState(false)
     // const [display, setDis] = useState(true)
     // 读取原子歌单
     const [playList] = useAtom(playListAtom)

@@ -2,13 +2,14 @@ import { useAtom } from 'jotai';
 
 // import { useState } from 'react';
 import styles from './index.module.scss'
-import { currentImgUrl, diskRotationAtom } from '../../store';
+import { diskRotationAtom, isPlayingAtom, useCurrentAudio } from '../../store';
 import { MusicPlayer } from '../MusicPlayer';
 // import { ListCom } from '../ListCom';
 
 export const DiskCover = () => {
-    const [imgUrl] = useAtom(currentImgUrl);
-    const [diskRotation] = useAtom(diskRotationAtom);
+    const { currentAudio } = useCurrentAudio()
+    const imgUrl = currentAudio.imageUrl
+    const [isPlaying] = useAtom(isPlayingAtom);
     // const [display, setDis] = useState(false)
     // const changeDisplay = () => setDis(!display)
 
@@ -19,7 +20,7 @@ export const DiskCover = () => {
                 <ListCom display={display} setDis={changeDisplay} />
             </div> */}
             <img
-                className={diskRotation ? styles.diskImg : styles.img}
+                className={isPlaying ? styles.diskImg : styles.img}
                 src={imgUrl}
                 alt="💿 Cover"
             />

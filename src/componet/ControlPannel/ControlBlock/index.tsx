@@ -1,10 +1,11 @@
 import { useAtom } from "jotai";
 import { icon } from '../iconStore'
 import styles from './index.module.scss';
-import { PlaybackModes, audioInfoAtom, baseUrl, isPlayingAtom, playListAtom, playbackModeAtom, useCurrentAudio } from "../../../store";
+import { audioInfoAtom, baseUrl, isPlayingAtom, playListAtom, useCurrentAudio } from "../../../store";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
+import { playMode, usePlayMode } from "../../../store/mode";
 
 export const ControlBlock = () => {
 
@@ -19,17 +20,16 @@ export const ControlBlock = () => {
 
 // 变更播放模式按钮
 const PlayMode = () => {
-    const [playbackMode, setPlaybackMode] = useAtom(playbackModeAtom);
-    const handleModeChange = () => {
-        const modes = Object.values(PlaybackModes);
-        const currentModeIndex = modes.indexOf(playbackMode);
-        const nextModeIndex = (currentModeIndex + 1) % modes.length;
-        setPlaybackMode(modes[nextModeIndex]);
-        console.log('更改了播放模式，当前为：', playbackMode, '模式')
-    };
+    // console.log(1)
+    const { currentPlayModeIndex, setCurrentPlayModeIndex, currentPlayMode } = usePlayMode()
+    const changeMode = () => {
+        const newPlaymodeIndex = (currentPlayModeIndex < playMode.length - 1 ? (currentPlayModeIndex + 1) : 0)
+        setCurrentPlayModeIndex(newPlaymodeIndex)
+        console.log('播放模式切换为：', currentPlayMode);
+    }
     return (
-        <div className={styles.playmode} onClick={handleModeChange}>
-            <img className={styles.featherButton} src={icon.playmode} />
+        <div className={styles.playmode} onClick={changeMode}>
+            <img className={styles.featherButton} src={icon.playmode0} />
         </div>
     )
 }
