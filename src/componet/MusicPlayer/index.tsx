@@ -1,5 +1,5 @@
 import { useAtom } from 'jotai';
-import { audioRefAtom, isPlayingAtom, useCurrentAudio, currentTimeAtom, currentDurationAtom, currentAudioIndexAtom } from '../../store';
+import { audioRefAtom, isPlayingAtom, useCurrentAudio, currentTimeAtom, currentDurationAtom, currentAudioIndexAtom, useAudioInformation, playListAtom } from '../../store';
 import styles from './index.module.scss'
 import { useEffect, useRef } from 'react';
 import { currentPlayModeIndexAtom, playMode } from '../../store/mode';
@@ -11,6 +11,15 @@ export const MusicPlayer = () => {
     const [isPlay] = useAtom(isPlayingAtom);
     const [, setCurrentTime] = useAtom(currentTimeAtom)
     const [, setCurrentDuration] = useAtom(currentDurationAtom)
+    const { getAudioInformation } = useAudioInformation();
+    const [currentAudioIndex, setCurrentAudioIndex] = useAtom(currentAudioIndexAtom)
+    const [currentPlayModeIndex] = useAtom(currentPlayModeIndexAtom)
+    const [playList] = useAtom(playListAtom)
+    useEffect(() => {
+        console.log(
+            'currenAudio', currentAudio.name, currentAudio.id, currentAudio.audioUrl
+        );
+    }, [currentAudio])
 
     // 吧ref赋值给更新的audio
     useEffect(() => {
@@ -21,26 +30,6 @@ export const MusicPlayer = () => {
 
     // 监听audio实际播放情况改变记录状态
     // 并且安装状态自动化：暂停 ｜ 播放
-    useEffect(() => {
-        const audio = audioRef.current;
-        if (!audio) return;
-
-        const handlePlay = () => {
-            console.log('Play event triggered');
-        };
-
-        const handlePause = () => {
-            console.log('Pause event triggered');
-        };
-
-        audio.addEventListener('play', handlePlay);
-        audio.addEventListener('pause', handlePause);
-
-        return () => {
-            audio.removeEventListener('play', handlePlay);
-            audio.removeEventListener('pause', handlePause);
-        };
-    }, []);
     // 监听当前音频时长
     useEffect(() => {
         const audio = audioRef.current;
@@ -52,8 +41,11 @@ export const MusicPlayer = () => {
                     // 显示音频时长
                     console.log("Duration: " + audio.duration + " seconds");
                     // 可以选择在这里自动播放
-                    // audio.play();
+                    audio.play();
                 }, false);
+                if (!currentAudio.audioUrl.includes('.mp3')) {
+                    getAudioInformation(currentAudio.id)
+                }
                 audio.play().catch(e => console.error('Error playing audio:', e));
             } else {
                 audio.pause();
@@ -85,8 +77,7 @@ export const MusicPlayer = () => {
 
 
     // 定义当前音频播放结束行为
-    const [currentAudioIndex, setCurrentAudioIndex] = useAtom(currentAudioIndexAtom)
-    const [currentPlayModeIndex] = useAtom(currentPlayModeIndexAtom)
+
     const endAct = () => {
         if (!audioRef.current) { return }
         const audio = audioRef.current
@@ -94,7 +85,7 @@ export const MusicPlayer = () => {
         if (currentPlayModeIndex === 0) {
             audio.onended = function () {
                 // alert("The video has ended");
-                const newIndex = (currentPlayModeIndex < playMode.length - 1 ? (currentPlayModeIndex + 1) : 0)
+                const newIndex = (currentAudioIndex < playList.length - 1 ? (currentAudioIndex + 1) : 0)
                 setCurrentAudioIndex(newIndex)
                 audio.play()
             };

@@ -1,8 +1,7 @@
 import { useAtom } from "jotai";
 import { icon } from '../iconStore'
 import styles from './index.module.scss';
-import { audioInfoAtom, baseUrl, isPlayingAtom, playListAtom, useCurrentAudio } from "../../../store";
-import axios from "axios";
+import { isPlayingAtom, playListAtom, useAudioInformation, useCurrentAudio } from "../../../store";
 import { useEffect, useState } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
 import { playMode, usePlayMode } from "../../../store/mode";
@@ -36,33 +35,12 @@ const PlayMode = () => {
 
 // 下载按钮
 const Download = () => {
+    const { loading, audioInfo, getAudioInformation } = useAudioInformation()
     // 假设 useCurrentAudio 是一个 Hook，返回当前音频的相关信息
-    const [loading, setLoading] = useState<boolean>(false);
     const { currentAudio } = useCurrentAudio()
-    const [audioInfo, setAudioInfo] = useAtom(audioInfoAtom)
-    // 函数：重新获取当前音频的信息（包含生成的mp3）
-    async function getAudioInformation(audioIds: string) {
-        setLoading(true);
-        const url = `${baseUrl}/api/get?ids=${audioIds}`;
-        const response = await axios.get(url)
-            .catch(error => {
-                console.error('API请求失败:', error);
-                if (error.response) {
-                    alert(`错误: ${error.response.status} ${error.response.data.message}`);
-                } else if (error.request) {
-                    alert('服务器响应超时，请检查您的网络连接或稍后再试。');
-                } else {
-                    alert('请求失败，请检查您的请求配置或稍后再试。');
-                }
-                return null;  // 返回 null 以避免后续代码执行
-            });
-
-        if (response && response.data) {  // 确保 response 和 response.data 都有效
-            setAudioInfo(response.data[0]);
-        }
-        setLoading(false);
-    }
+    const [toDownLoad, setToDownLoad] = useState(false)
     // 函数：根据重新获取到的url下载mp3文件
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     function downloadAudio() {
         if (audioInfo && audioInfo.audio_url !== '') {
             const audioUrl = audioInfo.audio_url;
@@ -88,12 +66,23 @@ const Download = () => {
     }
     // 点击下载
     async function downloadMP3(audioId = currentAudio) {
+        // if (!currentAudio.audioUrl.includes('.mp3')) {
+        // 函数：重新获取当前音频的信息（包含生成的mp3）
         getAudioInformation(audioId.id);
+        // }
+        setToDownLoad(true)
+        console.log('点击了下载按钮', toDownLoad);
     }
-    // 获取到自动执行下载方法
+    // // 获取到自动执行下载方法
     useEffect(() => {
-        downloadAudio()
-    }, [audioInfo?.audio_url])
+        // 是否点击了下载按钮
+        if (toDownLoad) {
+            downloadAudio()
+            // 执行完下载行为后要还原为没有点击下载按钮的状态
+            setToDownLoad(false)
+            console.log('还原下载状态', toDownLoad);
+        }
+    }, [downloadAudio, toDownLoad, audioInfo?.audio_url])
     return (
         <div className={styles.download}>
             {loading ? <LoadingOutlined /> : <img className={styles.featherButton} src={icon.download} onClick={() => { downloadMP3(); console.log('Download clicked') }} />
@@ -109,7 +98,7 @@ const PlayControl = () => {
     const [isPlay, setIsPlaying] = useAtom(isPlayingAtom)
 
     const next = () => {
-        console.log('next', currentAudio.audioUrl)
+        console.log('next：', currentAudio.audioUrl)
         setCurrentAudioIndex((currentIndex) => (currentIndex + 1) % playList.length);
         setIsPlaying(true);
 

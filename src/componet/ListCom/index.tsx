@@ -10,9 +10,8 @@ interface ListCom {
     setDis: (value: React.SetStateAction<boolean>) => void;
 }
 // 歌单组件
-export const ListCom = (props: ListCom) => {
+export const ListCom = () => {
     // 是否展示
-    // const { display, setDis } = props
     const [display, setDis] = useState(false)
     // const [display, setDis] = useState(true)
     // 读取原子歌单

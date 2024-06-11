@@ -22,6 +22,9 @@ export const ProcessBlock = () => {
             audioRef.current.currentTime = newTime;
         }
     };
+    const x: string = formatTime(currentDuration)
+    // console.log(x);
+
 
     return (
         <div className={styles.processBlock}>
@@ -37,7 +40,7 @@ export const ProcessBlock = () => {
             </div>
 
             <div className={styles.processTime}>
-                <span>{formatTime(currentTime)}</span>  <span>{(formatTime(currentDuration) && (typeof formatTime(currentDuration) === 'number')) ? formatTime(currentDuration) : <LoadingOutlined />}</span>
+                <span>{formatTime(currentTime)}</span>  <span>{(typeof formatTime(currentDuration) === 'string') ? formatTime(currentDuration) : <LoadingOutlined />}</span>
             </div>
         </div>
     )

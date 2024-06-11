@@ -2,7 +2,7 @@ import { useAtom } from 'jotai';
 
 // import { useState } from 'react';
 import styles from './index.module.scss'
-import { diskRotationAtom, isPlayingAtom, useCurrentAudio } from '../../store';
+import { isPlayingAtom, useCurrentAudio } from '../../store';
 import { MusicPlayer } from '../MusicPlayer';
 // import { ListCom } from '../ListCom';
 

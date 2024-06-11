@@ -5,16 +5,27 @@ import { DiskCover } from './componet/DiskCover';
 import { InputPannel } from './componet/InputPannel';
 import { Suspense } from 'react';
 import { ListCom } from './componet/ListCom';
+import { ThreeD } from './componet/ThreeD';
+// import { useAtom } from 'jotai';
+// import { showBubbleAtom } from './store';
 function App() {
+  // const [state, setState] = useAtom(showBubbleAtom)
+  // const sendMessage = () => {
+  //   setState(!state)
+  // }
   return (
-    <div className="container">
+    <>
       <Suspense fallback={<Loading />}>
-        <ListCom />
-        <DiskCover />
-        <ControlPannel />
-        <InputPannel />
+        {/* <button onClick={() => sendMessage()}>send</button> */}
+        <ThreeD />
+        <div className="container">
+          <ListCom />
+          <DiskCover />
+          <ControlPannel />
+          <InputPannel />
+        </div>
       </Suspense>
-    </div>
+    </>
   );
 }
 
@@ -26,3 +37,4 @@ const Loading = () => {
     <img src={'loadingPage/logo.png'} alt="loading" />
   )
 }
+
