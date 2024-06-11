@@ -3,12 +3,12 @@ import { useAtom } from 'jotai';
 import axios from 'axios';
 import { useEffect, useState } from "react";
 import styles from './index.module.scss';
-import { AudioInfo, audioInfoAtom, baseUrl, playListAtom, useCurrentAudio } from '../../store';
+import { AudioInfo, audioInfoAtom, baseUrl, isLoadingAtom, playListAtom, useCurrentAudio } from '../../store';
 
 export const InputPannel = () => {
 
     // 获取信息状态
-    const [loading, setLoading] = useState<boolean>(false);
+    const [loading, setLoading] = useAtom<boolean>(isLoadingAtom);
     const [intervalId, setIntervalId] = useState<number | null>(null);
     const [audioInfo, setAudioInfo] = useAtom<AudioInfo | null>(audioInfoAtom);
     const { setCurrentAudioImg } = useCurrentAudio()

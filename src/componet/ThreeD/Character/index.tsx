@@ -24,14 +24,9 @@ export function Character() {
 
     useEffect(() => {
         actions[characterAnimation]?.play();
-        let a = '';
-        if (isloading) {
-            a = 'listen'
-        } else {
-            a = isPlaying ? 'sing' : 'idle'
-        }
+        const a = isloading ? 'listen' : (isPlaying ? 'sing' : 'idle')
         setCharacterAnimation(a)
-    }, [isPlaying, characterAnimation])
+    }, [isPlaying, characterAnimation, isloading])
 
     // 在组件挂载时播放动作 'Praying'，并在组件卸载时重置并停止它。
     // useEffect(() => {

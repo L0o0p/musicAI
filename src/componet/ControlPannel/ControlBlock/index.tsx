@@ -1,7 +1,7 @@
 import { useAtom } from "jotai";
 import { icon } from '../iconStore'
 import styles from './index.module.scss';
-import { isPlayingAtom, playListAtom, useAudioInformation, useCurrentAudio } from "../../../store";
+import { isLoadingAtom, isPlayingAtom, playListAtom, useAudioInformation, useCurrentAudio } from "../../../store";
 import { useEffect, useState } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
 import { playMode, usePlayMode } from "../../../store/mode";
@@ -96,6 +96,7 @@ const PlayControl = () => {
     const { setCurrentAudioIndex, currentAudio } = useCurrentAudio()
     const [playList] = useAtom(playListAtom)
     const [isPlay, setIsPlaying] = useAtom(isPlayingAtom)
+    const [isloading, setIsLoading] = useAtom(isLoadingAtom)
 
     const next = () => {
         console.log('next：', currentAudio.audioUrl)
@@ -132,6 +133,7 @@ const PlayControl = () => {
                 src={isPlay ? icon.playButtonT : icon.playButtonF}
                 onClick={togglePlayPause}
             />
+            <button onClick={() => { setIsLoading(!isloading) }}></button>
             <img
                 className={styles.featherButton}
                 src={icon.nextbutton}
