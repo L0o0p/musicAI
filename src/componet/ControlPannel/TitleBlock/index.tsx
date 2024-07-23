@@ -1,11 +1,17 @@
-import { useCurrentAudio } from '../../../store';
+import { useAtom } from 'jotai';
+import { ifClickShareAtom, useCurrentAudio } from '../../../store';
 import { icon } from '../iconStore'
 import styles from './index.module.scss';
 
 
 export const TitleBlock = () => {
     const { currentAudio } = useCurrentAudio();
+    const [, setClickShare] = useAtom(ifClickShareAtom)
     const songName = currentAudio.name
+    const clickShareButton = () => {
+        getShareLink()
+        playShareAnimation()
+    }
     const getShareLink = () => {
         console.log('点击分享', songName, currentAudio.audioUrl);
         document.getElementById('shareLink')?.addEventListener('click', function () {
@@ -19,12 +25,18 @@ export const TitleBlock = () => {
             });
         });
     }
+    const playShareAnimation = () => {
+        setClickShare(true)
+        setTimeout(() => {
+            setClickShare(false)
+        }, 2500)
+    }
     return (
         <div className={styles.titleBlock}>
             <div className={styles.title}>
                 {songName}
             </div>
-            <div id={'shareLink'} className={styles.shareIcon} onClick={getShareLink}>
+            <div id={'shareLink'} className={styles.shareIcon} onClick={clickShareButton}>
                 <img style={{ width: '24px', height: '24px' }} src={icon.shareIcon} />
             </div>
         </div>

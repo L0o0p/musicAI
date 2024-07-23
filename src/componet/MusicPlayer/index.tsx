@@ -1,5 +1,5 @@
 import { useAtom } from 'jotai';
-import { audioRefAtom, isPlayingAtom, useCurrentAudio, currentTimeAtom, currentDurationAtom, currentAudioIndexAtom, useAudioInformation, playListAtom } from '../../store';
+import { audioRefAtom, isPlayingAtom, useCurrentAudio, currentTimeAtom, currentDurationAtom, currentAudioIndexAtom, useAudioInformation, playListAtom, clickAtom } from '../../store';
 import styles from './index.module.scss'
 import { useEffect, useRef } from 'react';
 import { currentPlayModeIndexAtom, playMode } from '../../store/mode';
@@ -8,13 +8,15 @@ export const MusicPlayer = () => {
     const { currentAudio } = useCurrentAudio();
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [, setAudioRef] = useAtom(audioRefAtom);
-    const [isPlay] = useAtom(isPlayingAtom);
+    const [isPlay, setIsPlaying] = useAtom(isPlayingAtom);
     const [, setCurrentTime] = useAtom(currentTimeAtom)
     const [, setCurrentDuration] = useAtom(currentDurationAtom)
     const { getAudioInformation } = useAudioInformation();
     const [currentAudioIndex, setCurrentAudioIndex] = useAtom(currentAudioIndexAtom)
     const [currentPlayModeIndex] = useAtom(currentPlayModeIndexAtom)
     const [playList] = useAtom(playListAtom)
+    const onPlay = () => setIsPlaying(true)
+    const onPause = () => setIsPlaying(false)
     useEffect(() => {
         console.log(
             'currenAudio', currentAudio.name, currentAudio.id, currentAudio.audioUrl
@@ -35,6 +37,8 @@ export const MusicPlayer = () => {
         const audio = audioRef.current;
         if (audio) {
             if (isPlay) {
+                audio.addEventListener('play', onPlay);
+                audio.addEventListener('pause', onPause);
                 // 监听canplaythrough事件，表示音频已经可以无缓冲播放
                 audio.addEventListener('canplaythrough', function () {
                     console.log("Audio is fully loaded and can play through.");
@@ -51,6 +55,7 @@ export const MusicPlayer = () => {
                 audio.pause();
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isPlay]);  // 只有当 isPlay 改变时，这个 useEffect 才会运行
 
     // 当音频加载元数据时，设置总时长
@@ -109,6 +114,7 @@ export const MusicPlayer = () => {
     // 执行音频播放结束行为
     useEffect(() => {
         endAct()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentAudioIndex, currentPlayModeIndex])
 
     return (

@@ -104,12 +104,14 @@ export const audioInfoAtom = atom<AudioInfo | null>(null)
 // 是否等待状态
 export const isLoadingAtom = atom<boolean>(false);
 
+export const ifClickShareAtom = atom<boolean>(false);
+
 // 获取音频信息
 // 函数：重新获取当前音频的信息（包含生成的mp3）
 export function useAudioInformation() {
     const [loading, setLoading] = useAtom(isLoadingAtom);
     const [audioInfo, setAudioInfo] = useAtom(audioInfoAtom);
-    const { currentAudioUrl, setCurrentAudioUrl } = useCurrentAudio()
+    const { setCurrentAudioUrl } = useCurrentAudio()
     async function getAudioInformation(audioIds: string) {
         setLoading(true);
         const url = `${baseUrl}/api/get?ids=${audioIds}`;
@@ -147,3 +149,32 @@ export const showBubbleAtom = atom(false)
 export const statusAtom = atom("Hello," + "\n" + " I' m Tim")
 // 角色动画
 export const characterAnimationAtom = atom('idle')
+
+import { AnimationAction } from "three";
+
+// 定义 actions 和 actionIndex 两个 Atom
+export const actionsAtom = atom<AnimationAction[]>([]);
+
+export const actionIndexAtom = atom(2); // 初始化为 0 或任意有效的默认索引
+
+export const useAction = () => {
+    const [actions, setActions] = useAtom(actionsAtom);
+    const [actionIndex, setActionIndex] = useAtom(actionIndexAtom);
+    const nextActionIndex = (actionIndex + 1) % (actions.length || 1);
+
+    // 直接在组件中计算当前动作，而不是创建一个新的 Atom
+    const currentAction = actions[actionIndex] || null;
+    const nextAction = actions[nextActionIndex] || null;
+    const setCurrentAction = (action: AnimationAction) => {
+        setActions(prevActions => {
+            const newActions = [...prevActions];
+            newActions[actionIndex] = action;
+            return newActions;
+        });
+    };
+
+    // 返回所有相关状态和设置函数
+    return { actions, setActions, actionIndex, setActionIndex, currentAction, setCurrentAction, nextActionIndex, nextAction };
+}
+
+export const clickAtom = atom(false);
