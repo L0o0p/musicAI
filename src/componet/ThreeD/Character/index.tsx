@@ -15,6 +15,8 @@ export const Character = () => {
     const mixer = useRef<THREE.AnimationMixer | null>(null); // 使用 useRef 避免重复创建
     const [isPlay] = useAtom(isPlayingAtom)
     const [isLoading] = useAtom(isLoadingAtom)
+
+    // 函数：设置权重
     function setWeight(action: { enabled: boolean; setEffectiveTimeScale: (arg0: number) => void; setEffectiveWeight: (arg0: number) => void; }, weight: number) {
         action.enabled = true;
         action.setEffectiveTimeScale(1);
@@ -32,6 +34,8 @@ export const Character = () => {
             action.play();
         });
     }
+
+    // 函数：动画交叉淡入淡出
     function prepareCrossFade(startAction: THREE.AnimationAction, endAction: THREE.AnimationAction, defaultDuration = 0.4) {
 
         if (!startAction || !endAction) return; // 确保动作有效
@@ -48,21 +52,24 @@ export const Character = () => {
         // else wait until the current action has finished its current loop
         executeCrossFade(startAction, endAction, duration);
     }
+
+    // 函数：暂停所有动作
     function unPauseAllActions() {
         actions.forEach(action => {
             action.paused = false;
         });
     }
+
+    // 函数：执行动画
     function executeCrossFade(startAction: THREE.AnimationAction, endAction: THREE.AnimationAction, duration: number) {
         if (startAction && endAction) {
             setWeight(endAction, 1);
-            endAction.time = 0;
-            startAction.crossFadeTo(endAction, duration, true);
+            endAction.time = 0;// 设置本次动画开始时间（从第0秒开始）
+            startAction.crossFadeTo(endAction, duration, true);// 从「动画A」到「动画B」，过渡时间为duration秒
         }
     }
-    useEffect(() => {
-        console.log('loading?->', isLoading);
-    }, [isLoading])
+
+    // 动画文件加载
     useEffect(() => {
         if (gltf.scene && gltf.animations.length > 0) {
             mixer.current = new THREE.AnimationMixer(gltf.scene);
@@ -77,6 +84,8 @@ export const Character = () => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    // 初始化动画
     useEffect(() => {
         if (actions.length > 0) {
             initializeAnimations(actions[0], actions[1], actions[2], actions[3])
@@ -84,6 +93,8 @@ export const Character = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [actions])
     const [currentIndex, setCurrentIndex] = useState(2)
+
+    // 触发动画：播放/暂停
     useEffect(() => {
         if (isPlay && !isLoading) {
             prepareCrossFade(actions[currentIndex], actions[1], 0.4)
@@ -99,6 +110,8 @@ export const Character = () => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isPlay]);
+
+    // 触发动画：加载
     useEffect(() => {
         if (isLoading) {
             prepareCrossFade(actions[currentIndex], actions[0], 0.4)
@@ -109,11 +122,22 @@ export const Character = () => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isLoading]);
+
+    // 触发动画：分享
     useEffect(() => {
+        console.log('ifClickShare', ifClickShare);
+
         if (ifClickShare) {
             prepareCrossFade(actions[currentIndex], actions[3], 0.4)
+            actions[3].loop = THREE.LoopOnce;
             setCurrentIndex(3)
-        } else {
+            // setTimeout(() => {
+            //     setIfClickShare(false)
+            //     prepareCrossFade(actions[currentIndex], actions[2], 0.4)
+            //     setCurrentIndex(2)
+            // }, 3000)
+        }
+        else {
             prepareCrossFade(actions[currentIndex], actions[2], 0.4)
             setCurrentIndex(2)
         }
@@ -123,7 +147,7 @@ export const Character = () => {
         mixer.current?.update(delta); // 更新动画
     });
 
-    return <primitive object={gltf.scene} />;
+    return <><primitive object={gltf.scene} /></>
 };
 
 

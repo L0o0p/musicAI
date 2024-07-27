@@ -9,22 +9,22 @@ export const TitleBlock = () => {
     const [, setClickShare] = useAtom(ifClickShareAtom)
     const songName = currentAudio.name
     const clickShareButton = () => {
-        getShareLink()
+        // getShareLink()
         playShareAnimation()
     }
-    const getShareLink = () => {
-        console.log('点击分享', songName, currentAudio.audioUrl);
-        document.getElementById('shareLink')?.addEventListener('click', function () {
-            const textToCopy = currentAudio.audioUrl;// 需要复制的文本内容
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                console.log('分享链接已成功复制到剪贴板->', currentAudio.audioUrl);
-                alert('分享链接已成功复制到剪贴板');
-            }).catch(err => {
-                console.error('无法复制链接: ', err);
-                alert('无法复制链接: ');
-            });
-        });
-    }
+    // const getShareLink = () => {
+    //     console.log('点击分享', songName, currentAudio.audioUrl);
+    //     document.getElementById('shareLink')?.addEventListener('click', function () {
+    //         const textToCopy = currentAudio.audioUrl;// 需要复制的文本内容
+    //         navigator.clipboard.writeText(textToCopy).then(() => {
+    //             console.log('分享链接已成功复制到剪贴板->', currentAudio.audioUrl);
+    //             alert('分享链接已成功复制到剪贴板');
+    //         }).catch(err => {
+    //             console.error('无法复制链接: ', err);
+    //             alert('无法复制链接: ');
+    //         });
+    //     });
+    // }
     const playShareAnimation = () => {
         setClickShare(true)
         setTimeout(() => {

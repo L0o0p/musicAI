@@ -19,7 +19,6 @@ export const ControlBlock = () => {
 
 // 变更播放模式按钮
 const PlayMode = () => {
-    // console.log(1)
     const { currentPlayModeIndex, setCurrentPlayModeIndex, currentPlayMode } = usePlayMode()
     const changeMode = () => {
         const newPlaymodeIndex = (currentPlayModeIndex < playMode.length - 1 ? (currentPlayModeIndex + 1) : 0)
